@@ -42,22 +42,28 @@
     let T;
     try { T = sigiloGL(cv); } catch (e) { T = null; }
     if (!T) return;
-    const CICLO = 24000, ESC = .8;
-    let ex = eixo();
-    const ajusta = () => { T.tamanho(Math.round(fundo.clientWidth * ESC), Math.round(fundo.clientHeight * ESC)); ex = eixo(); };
+    /* resolução real da tela (até 2x); se o quadro passar de ~22 ms em média, baixa em degraus */
+    const CICLO = 24000;
+    let esc = Math.min(devicePixelRatio || 1, 2), ex = eixo();
+    const ajusta = () => { T.tamanho(Math.round(fundo.clientWidth * esc), Math.round(fundo.clientHeight * esc)); ex = eixo(); };
     ajusta(); addEventListener('resize', ajusta);
-    let ve = true, ult = 0, t0 = performance.now();
-    new IntersectionObserver(([e]) => ve = e.isIntersecting).observe(fundo);
+    let ve = true, ult = 0, soma = 0, n = 0, t0 = performance.now();
+    new IntersectionObserver(([e]) => { ve = e.isIntersecting; ult = 0; }).observe(fundo);
     const quadro = t => {
       requestAnimationFrame(quadro);
-      if (!ve || document.hidden || t - ult < 32) return;
+      if (!ve || document.hidden) { ult = 0; return; }
+      if (ult) { soma += t - ult; n++; }
       ult = t;
+      if (n === 40) {
+        if (soma / n > 22 && esc > .6) { esc = Math.max(.6, esc * .8); ajusta(); }
+        soma = 0; n = 0;
+      }
       T.desenhar(((t - t0) % CICLO) / CICLO * 6.283185307179586, ex);
       cv.classList.add('on');
     };
     if (calmo) { T.desenhar(0, ex); cv.classList.add('on'); } else requestAnimationFrame(quadro);
   };
-  if (toque) tocaVideo(hv, innerWidth > innerHeight ? 'assets/video/sigilo-deitado.mp4' : 'assets/video/sigilo-celular.mp4');
+  if (toque) tocaVideo(hv, innerWidth > innerHeight ? 'assets/video/sigilo-deitado.mp4?v=3' : 'assets/video/sigilo-celular.mp4?v=3');
   else vivo();
   $$('.fim-fundo .fundo-vid').forEach(v => tocaVideo(v, v.dataset.src));
 

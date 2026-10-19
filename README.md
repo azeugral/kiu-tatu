@@ -5,7 +5,7 @@ Site da tatuadora Kiu (@kiu.tatu), em Itapetininga-SP e São Paulo-SP. É uma p�
 - `index.html`, `assets/css/site.css` e `assets/js/site.js` formam o site.
 - `assets/obras.json` lista o portfólio e é gerado por `tools/processar.py` a partir de `_ref/ig` (a extração do Instagram fica fora do repo).
 - `assets/img/logo.svg` e `kiu.svg` foram vetorizados dos arquivos da cliente por `tools/vetorizar.py`.
-- O fundo do hero é `assets/js/sigilo.js`: fumaça e sigilos espelhados (dobra fractal) num shader WebGL, ao vivo no desktop. No toque entram `assets/video/sigilo-*.mp4`, gerados pelo mesmo shader com `tools/gerar_video.py`, que também gera os pôsteres `sigilo.webp` e `sigilo-m.webp`.
+- O fundo do hero é `assets/js/sigilo.js`: fumaça roxa espelhada com veios de tinta preta, num shader WebGL que roda ao vivo no desktop na resolução real da tela (até 2x, e baixa sozinho se pesar). No toque entram `assets/video/sigilo-*.mp4`, gerados pelo mesmo shader com `tools/gerar_video.py`, que também gera os pôsteres `sigilo.webp` e `sigilo-m.webp`.
 - A paleta é preto, osso e ultravioleta (`--acento` #6a45f5, `--lilas` #b9a6ff), puxada do cabelo azul e violeta dela.
 - `og.jpg`, `favicon-64.png` e `apple-touch-icon.png` saem de `tools/og.py`.
 
