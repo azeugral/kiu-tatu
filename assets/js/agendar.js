@@ -1,10 +1,12 @@
 /* Pedido de orçamento: etapas, validação, rascunho no navegador, fotos e envio.
    Dois modos de envio, escolhidos por ENVIO.email:
    - com e-mail: POST multipart para o FormSubmit, com as imagens anexadas (comprimidas aqui);
+     com ENVIO.demo ligado, só simula o envio (apresentação);
    - sem e-mail: monta o texto do pedido, copia e abre a DM da Kiu para colar. */
 (() => {
   const ENVIO = {
-    email: '',                      // CONFIRMAR: e-mail da Kiu para o FormSubmit (vazio = pedido vai pela DM)
+    email: 'orcamento@example.com', // CONFIRMAR: fictício, só para a apresentação. Trocar pelo e-mail real da Kiu
+    demo: true,                     // apresentação: simula o envio sem mandar nada. Desligar junto com o e-mail real
     dm: 'https://ig.me/m/kiu.tatu',
     maxFotos: 4,
     ladoMax: 1600,
@@ -300,6 +302,15 @@
     }
 
     enviando = true; bEnviar.disabled = true; bEnviar.querySelector('span').textContent = 'Enviando…';
+    if (ENVIO.demo) {
+      /* apresentação: mesmo caminho visual do envio real, sem POST */
+      await Promise.all(fotos.map(f => comprimir(f.file)));
+      await new Promise(r => setTimeout(r, 900));
+      try { localStorage.removeItem(CHAVE); } catch (er) { /* */ }
+      history.replaceState(null, '', 'agendar.html?enviado=1');
+      mostrarPronto(true);
+      return;
+    }
     form.action = 'https://formsubmit.co/' + ENVIO.email;
     form.elements._subject.value = `Orçamento · ${val('#nome')} · ${radio('Onde')}`;
     form.elements._next.value = new URL('agendar.html?enviado=1', location.href).href;

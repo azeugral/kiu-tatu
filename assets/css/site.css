@@ -389,6 +389,7 @@ svg{width:1em;height:1em;flex:none}
   .ag-botoes .ag-voltar{flex:0 0 auto;width:54px;padding:0}
   .ag-voltar span{display:none}
   .ag-botoes-pronto{position:static;margin:28px 0 0;padding:0;background:none;flex-direction:column}
+  .ag-pronto{padding-top:40px}
 }
 
 @media (max-width:1020px){
