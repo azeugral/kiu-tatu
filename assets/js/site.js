@@ -26,6 +26,41 @@
   bm.addEventListener('click', () => abreMenu(menu.hidden));
   $$('a', menu).forEach(a => a.addEventListener('click', () => abreMenu(false)));
 
+  /* fundo: fumaça com sigilos espelhados, ao vivo no desktop (WebGL) e MP4 em loop no toque */
+  const calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fundo = $('.hero-fundo'), cv = $('.fundo-gl', fundo), hv = $('.fundo-vid', fundo);
+  const toque = matchMedia('(hover: none), (pointer: coarse), (max-width: 760px)').matches;
+  const tocaVideo = (v, src) => {
+    if (calmo) return;
+    v.src = src;
+    v.addEventListener('playing', () => v.classList.add('on'), { once: true });
+    new IntersectionObserver(([e]) => e.isIntersecting ? v.play().catch(() => {}) : v.pause()).observe(v.parentElement);
+  };
+  /* eixo do espelho: no centro da foto do hero */
+  const eixo = () => { const f = $('.hero-foto').getBoundingClientRect(); return Math.min(.85, Math.max(.5, (f.left + f.width / 2) / innerWidth)); };
+  const vivo = () => {
+    let T;
+    try { T = sigiloGL(cv); } catch (e) { T = null; }
+    if (!T) return;
+    const CICLO = 24000, ESC = .8;
+    let ex = eixo();
+    const ajusta = () => { T.tamanho(Math.round(fundo.clientWidth * ESC), Math.round(fundo.clientHeight * ESC)); ex = eixo(); };
+    ajusta(); addEventListener('resize', ajusta);
+    let ve = true, ult = 0, t0 = performance.now();
+    new IntersectionObserver(([e]) => ve = e.isIntersecting).observe(fundo);
+    const quadro = t => {
+      requestAnimationFrame(quadro);
+      if (!ve || document.hidden || t - ult < 32) return;
+      ult = t;
+      T.desenhar(((t - t0) % CICLO) / CICLO * 6.283185307179586, ex);
+      cv.classList.add('on');
+    };
+    if (calmo) { T.desenhar(0, ex); cv.classList.add('on'); } else requestAnimationFrame(quadro);
+  };
+  if (toque) tocaVideo(hv, innerWidth > innerHeight ? 'assets/video/sigilo-deitado.mp4' : 'assets/video/sigilo-celular.mp4');
+  else vivo();
+  $$('.fim-fundo .fundo-vid').forEach(v => tocaVideo(v, v.dataset.src));
+
   /* hero: fotos passam sozinhas */
   const fotos = $$('.hero-quadro img'), tit = $('.hero-tit'), cont = $('.hero-cont b'), bar = $('.hero-barra i');
   const nomes = ['Olhos em sangue, autoral', 'Cybersigil na mão', 'Hollow Knight, autoral', 'Hexatombe, Ordem Paranormal', 'Cybersigil com luz vermelha'];
