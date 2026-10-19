@@ -11,11 +11,32 @@ Site da tatuadora Kiu (@kiu.tatu), em Itapetininga-SP e São Paulo-SP. É uma p�
 
 ## CONFIRMAR com a cliente
 
-1. A promo de R$ 250 a R$ 300 para quem é de Itapetininga vale para quais peças? No destaque "wishlist" ela aparece junto das artes de costas e do freehand. Ainda está de pé?
+1. A seção "Na wishlist" (ideias que ela quer tatuar + promo de R$ 250 a R$ 300 em Itapetininga) foi retirada em 19/10. Se ela quiser de volta, o HTML está no fim deste arquivo; o CSS (`.sec-wish`, `.wish`, `.lista-brilho`, `.promo`) e a imagem `assets/img/wish.webp` continuam no projeto.
 2. A agenda em São Paulo é em 19 e 20 de novembro de 2026? Qual é o bairro ou estúdio? E depois dessas datas, sai a faixa vermelha?
 3. Ela cobra sinal? Qual é o valor e qual a regra de remarcação?
 4. Está tudo certo em citar o @guelemk (story repostado) como depoimento?
 5. O texto de "Quem tatua" (começou em out/2024 em SJC, depois Sorocaba e Itapetininga) está correto? Ela quer aparecer como "Kiu" ou quer mostrar o nome?
 6. Tem WhatsApp, ou o contato continua só pela DM?
 7. Domínio próprio (ex.: kiutatu.com.br)?
-8. O cybersigil das costas na wishlist (destaque "orgulhosa dessa q eu fiz") pode ir para o site?
+8. Se a wishlist voltar: o cybersigil das costas (destaque "orgulhosa dessa q eu fiz") pode ir para o site?
+
+## Seção wishlist (retirada)
+
+```html
+<section class="sec sec-wish" id="wishlist">
+  <div class="sec-in wish">
+    <figure class="wish-foto"><img src="assets/img/wish.webp" alt="Desenho autoral de cybersigil para costas, em linhas finas" loading="lazy" width="640" height="640"></figure>
+    <div class="wish-txt">
+      <h2>Na wishlist</h2>
+      <p>Ideias que a Kiu quer muito tatuar. Se alguma combina com você, manda mensagem.</p>
+      <ul class="lista-brilho">
+        <li><svg><use href="#brilho"/></svg><div><strong>Coluna em cybersigil</strong>Desenho autoral descendo pelas costas, com asas de espinho.</div></li>
+        <li><svg><use href="#brilho"/></svg><div><strong>Estêncil em preto e branco</strong>Personagem, gato ou cena de filme em alto contraste, estilo xerox.</div></li>
+        <li><svg><use href="#brilho"/></svg><div><strong>Lettering grande no antebraço</strong>Palavra em caligrafia longa acompanhando o braço.</div></li>
+      </ul>
+      <p class="promo"><svg><use href="#brilho"/></svg>Pra quem é de Itapetininga: peças da wishlist de R$ 250 a R$ 300.</p>
+      <a class="btn btn-acento" href="https://ig.me/m/kiu.tatu" target="_blank" rel="noopener"><svg><use href="#ig"/></svg><span>Quero uma dessas</span></a>
+    </div>
+  </div>
+</section>
+```
