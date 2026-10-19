@@ -1,4 +1,4 @@
-"""Gera og.jpg (1200x630), favicon-64.png e apple-touch-icon.png com Playwright/Edge."""
+"""Gera og.jpg (1200x630) com Playwright/Edge. Os ícones saem de tools/favicon.py."""
 import os, pathlib
 from playwright.sync_api import sync_playwright
 B = pathlib.Path(__file__).resolve().parent.parent
@@ -11,12 +11,8 @@ og = f"""<body style="margin:0;width:1200px;height:630px;background:#060606 url(
 <div style="width:440px;color:#f1eeea">{logo}</div>
 <div style="font-size:22px;letter-spacing:.12em;text-transform:uppercase">Itapetininga · São Paulo</div>
 <div style="font-size:17px;letter-spacing:.12em;text-transform:uppercase;color:#b9a6ff">Orçamento pela DM</div></div></body>"""
-ico = f"""<body style="margin:0;width:180px;height:180px;background:#060606;display:grid;place-items:center"><div style="width:150px;color:#f1eeea">{kiu}</div></body>"""
 with sync_playwright() as p:
     br = p.chromium.launch(channel='msedge'); pg = br.new_page(viewport={'width':1200,'height':630})
     tmp = B/'tools/_og.html'; tmp.write_text(og, encoding='utf8'); pg.goto(tmp.as_uri()); pg.wait_for_timeout(800); tmp.unlink(); pg.screenshot(path=str(B/'og.jpg'), type='jpeg', quality=82)
-    pg.set_viewport_size({'width':180,'height':180}); pg.set_content(ico); pg.screenshot(path=str(B/'apple-touch-icon.png'))
     br.close()
-from PIL import Image
-Image.open(B/'apple-touch-icon.png').resize((64,64), Image.LANCZOS).save(B/'favicon-64.png')
 print('ok', os.path.getsize(B/'og.jpg')//1024, 'KB')

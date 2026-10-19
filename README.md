@@ -7,8 +7,8 @@ Site da tatuadora Kiu (@kiu.tatu), em Itapetininga-SP e São Paulo-SP. É uma p�
 - `assets/img/logo.svg` e `kiu.svg` foram vetorizados dos arquivos da cliente por `tools/vetorizar.py`.
 - O fundo do hero é `assets/js/sigilo.js`: fumaça roxa espelhada com veios de tinta preta, num shader WebGL que roda ao vivo no desktop na resolução real da tela (até 2x, e baixa sozinho se pesar). No toque entram `assets/video/sigilo-*.mp4`, gerados pelo mesmo shader com `tools/gerar_video.py`, que também gera os pôsteres `sigilo.webp` e `sigilo-m.webp`.
 - A paleta é preto, osso e ultravioleta (`--acento` #6a45f5, `--lilas` #b9a6ff), puxada do cabelo azul e violeta dela.
-- `agendar.html` + `assets/js/agendar.js`: pedido de orçamento em 5 etapas (Você, A ideia, Tamanho e local, Data, Revisão), no lugar do Google Forms. O rascunho fica no navegador. Com `ENVIO.email` preenchido, envia pelo FormSubmit com até 4 imagens comprimidas; vazio, monta o texto, copia e abre a DM da Kiu (`ig.me/m/kiu.tatu`). **Agora está em modo apresentação:** e-mail fictício (`orcamento@example.com`) com `ENVIO.demo: true`, que simula o envio e mostra "Pedido enviado" sem mandar nada. Depois do envio por e-mail, volta em `agendar.html?enviado=1`. A faixa de SP abre com `?onde=sp`.
-- `og.jpg`, `favicon-64.png` e `apple-touch-icon.png` saem de `tools/og.py`.
+- `agendar.html` + `assets/js/agendar.js`: pedido de orçamento em 5 etapas (Você, A ideia, Tamanho e local, Data, Revisão), no lugar do Google Forms. O rascunho fica no navegador. Com `ENVIO.email` preenchido, envia pelo FormSubmit (sem upload de imagens, a pedido: a referência vai por link ou na DM); vazio, monta o texto, copia e abre a DM da Kiu (`ig.me/m/kiu.tatu`). **Agora está em modo apresentação:** e-mail fictício (`orcamento@example.com`) com `ENVIO.demo: true`, que simula o envio e mostra "Pedido enviado" sem mandar nada. Depois do envio por e-mail, volta em `agendar.html?enviado=1`. A faixa de SP abre com `?onde=sp`.
+- `og.jpg` sai de `tools/og.py`. `favicon-32.png`, `favicon-64.png` e `apple-touch-icon.png` (fundo transparente, recortado do avatar) saem de `tools/favicon.py`.
 
 ## CONFIRMAR com a cliente
 

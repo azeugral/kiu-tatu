@@ -1,16 +1,13 @@
-/* Pedido de orçamento: etapas, validação, rascunho no navegador, fotos e envio.
+/* Pedido de orçamento: etapas, validação, rascunho no navegador e envio.
    Dois modos de envio, escolhidos por ENVIO.email:
-   - com e-mail: POST multipart para o FormSubmit, com as imagens anexadas (comprimidas aqui);
+   - com e-mail: POST para o FormSubmit;
      com ENVIO.demo ligado, só simula o envio (apresentação);
    - sem e-mail: monta o texto do pedido, copia e abre a DM da Kiu para colar. */
 (() => {
   const ENVIO = {
     email: 'orcamento@example.com', // CONFIRMAR: fictício, só para a apresentação. Trocar pelo e-mail real da Kiu
     demo: true,                     // apresentação: simula o envio sem mandar nada. Desligar junto com o e-mail real
-    dm: 'https://ig.me/m/kiu.tatu',
-    maxFotos: 4,
-    ladoMax: 1600,
-    qualidade: .82
+    dm: 'https://ig.me/m/kiu.tatu'
   };
   const CHAVE = 'kiu-pedido-v1';
   const calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -33,23 +30,17 @@
   const bVoltar = $('[data-voltar]'), bAvancar = $('[data-avancar]'), bEnviar = $('[data-enviar]');
   const alerta = $('[data-alerta]'), rascunho = $('[data-rascunho]');
   let atual = 0, maxVisto = 0;
-  const fotos = []; // { file, url }
 
   /* ---------- ajuda que muda com o tipo ---------- */
   const ajudas = {
     'Autoral': 'O que você quer, o clima, se tem significado. A Kiu cria a partir disso.',
-    'Fanart': 'Qual personagem, de onde, se é uma cena ou pose específica. Manda imagem se tiver.',
+    'Fanart': 'Qual personagem, de onde, se é uma cena ou pose específica.',
     'Sigilo ou tribal': 'Onde vai e como quer que acompanhe o corpo. Fino e espinhoso ou mais cheio?',
-    'Cobertura': 'Como é a tattoo atual e o que quer por cima. Manda foto dela nas referências.',
-    'Retoque': 'Qual tattoo, quando foi feita e o que precisa reforçar. Foto ajuda muito.'
+    'Cobertura': 'Como é a tattoo atual, onde fica e o que quer por cima.',
+    'Retoque': 'Qual tattoo, quando foi feita e o que precisa reforçar.'
   };
   const ajuda = $('[data-ajuda]');
   $$('input[name="Tipo"]').forEach(r => r.addEventListener('change', () => { ajuda.textContent = ajudas[r.value]; }));
-
-  /* ---------- contador ---------- */
-  const ideia = $('#ideia'), contador = $('[data-contador]');
-  const contar = () => { const n = ideia.value.trim().length; contador.textContent = n < 20 ? `${n} de 20 caracteres no mínimo` : `${n} caracteres`; };
-  ideia.addEventListener('input', contar);
 
   /* ---------- tamanho: atalhos e régua ---------- */
   const tam = $('#tamanho'), marca = $('[data-regua-marca]'), leitura = $('[data-regua-leitura]');
@@ -77,44 +68,6 @@
     tam.value = b.dataset.v; regua(); tam.closest('.campo').classList.remove('erro'); salvarLogo();
   }));
 
-  /* ---------- fotos ---------- */
-  const inArq = $('#arquivos'), lista = $('[data-fotos-lista]'), zona = $('[data-fotos]');
-  const desenharFotos = () => {
-    lista.innerHTML = fotos.map((f, i) => `<figure class="foto"><img src="${f.url}" alt="Referência ${i + 1}"><button type="button" data-tirar="${i}" aria-label="Remover imagem ${i + 1}">×</button></figure>`).join('');
-  };
-  const addArquivos = arqs => {
-    let cheio = false;
-    [...arqs].forEach(f => {
-      if (!/^image\//.test(f.type)) return;
-      if (fotos.length >= ENVIO.maxFotos) { cheio = true; return; }
-      fotos.push({ file: f, url: URL.createObjectURL(f) });
-    });
-    desenharFotos();
-    if (cheio) mostrarAlerta(`Dá para mandar até ${ENVIO.maxFotos} imagens. O resto você manda na DM depois.`);
-  };
-  inArq.addEventListener('change', () => { addArquivos(inArq.files); inArq.value = ''; });
-  lista.addEventListener('click', e => {
-    const b = e.target.closest('[data-tirar]'); if (!b) return;
-    const i = +b.dataset.tirar; URL.revokeObjectURL(fotos[i].url); fotos.splice(i, 1); desenharFotos();
-  });
-  ['dragenter', 'dragover'].forEach(t => zona.addEventListener(t, e => { e.preventDefault(); zona.classList.add('arrastando'); }));
-  ['dragleave', 'drop'].forEach(t => zona.addEventListener(t, e => { e.preventDefault(); zona.classList.remove('arrastando'); }));
-  zona.addEventListener('drop', e => e.dataTransfer && addArquivos(e.dataTransfer.files));
-
-  const comprimir = file => new Promise(ok => {
-    const img = new Image(), url = URL.createObjectURL(file);
-    img.onload = () => {
-      const k = Math.min(1, ENVIO.ladoMax / Math.max(img.naturalWidth, img.naturalHeight));
-      const cv = document.createElement('canvas');
-      cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
-      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-      URL.revokeObjectURL(url);
-      cv.toBlob(b => ok(!b || b.size > file.size ? file : new File([b], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' })), 'image/jpeg', ENVIO.qualidade);
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); ok(file); };
-    img.src = url;
-  });
-
   /* ---------- validação ---------- */
   const marcar = (el, ok) => { const c = el.closest('.campo, .confirma'); if (c) c.classList.toggle('erro', !ok); return ok; };
   const marcados = g => $$(`[data-grupo="${g}"] input[type="checkbox"]:checked`).map(c => c.value);
@@ -126,7 +79,6 @@
       if (el.type === 'radio' || el.type === 'checkbox') return;
       const v = el.value.trim(); let bom = v.length > 0;
       if (bom && el.type === 'number') bom = +v > 0 && +v <= 200;
-      if (bom && el.minLength > 0) bom = v.length >= el.minLength;
       if (bom && el.id === 'insta') bom = /^@?[\w.]{2,30}$/.test(v);
       if (!marcar(el, bom)) falha(el);
     });
@@ -208,7 +160,7 @@
       ['Nome', val('#nome'), 0], ['Instagram', insta(), 0], ['WhatsApp', val('#whats'), 0], ['Cidade', val('#cidade'), 0],
       ['Tattoo', radio('Primeira tattoo'), 0],
       ['Tipo', radio('Tipo'), 1], ['Cor', radio('Cor'), 1], ['Ideia', val('#ideia'), 1],
-      ['Referências', [fotos.length ? `${fotos.length} imagem${fotos.length > 1 ? 's' : ''}` : '', val('#link')].filter(Boolean).join(' · '), 1],
+      ['Referência', val('#link'), 1],
       ['Tamanho', val('#tamanho') ? val('#tamanho') + ' cm' : '', 2], ['Local', $('[data-composto="local"]').value, 2], ['Saúde', val('#saude'), 2],
       ['Onde', radio('Onde'), 3], ['Dias', $('[data-composto="dias"]').value, 3], ['Período', $('[data-composto="periodo"]').value, 3],
       ['Prazo', radio('Prazo'), 3], ['Observações', val('#obs'), 3]
@@ -253,7 +205,7 @@
   if (new URLSearchParams(location.search).get('onde') === 'sp') $$('input[name="Onde"]')[1].checked = true;
 
   const tipoSel = $('input[name="Tipo"]:checked'); if (tipoSel) ajuda.textContent = ajudas[tipoSel.value];
-  contar(); regua(); ir(0, false);
+  regua(); ir(0, false);
 
   /* ---------- pronto ---------- */
   const pronto = $('[data-pronto]');
@@ -295,7 +247,6 @@
       $('[data-texto]').textContent = t;
       const ok = await copiar(t);
       if (!ok) $('[data-pronto-txt]').textContent = 'Agora é só mandar na DM da Kiu. Copia o texto abaixo, abre a conversa e cola.';
-      $('[data-pronto-fotos]').hidden = !fotos.length;
       try { localStorage.removeItem(CHAVE); } catch (er) { /* */ }
       mostrarPronto(false);
       return;
@@ -304,7 +255,6 @@
     enviando = true; bEnviar.disabled = true; bEnviar.querySelector('span').textContent = 'Enviando…';
     if (ENVIO.demo) {
       /* apresentação: mesmo caminho visual do envio real, sem POST */
-      await Promise.all(fotos.map(f => comprimir(f.file)));
       await new Promise(r => setTimeout(r, 900));
       try { localStorage.removeItem(CHAVE); } catch (er) { /* */ }
       history.replaceState(null, '', 'agendar.html?enviado=1');
@@ -314,16 +264,8 @@
     form.action = 'https://formsubmit.co/' + ENVIO.email;
     form.elements._subject.value = `Orçamento · ${val('#nome')} · ${radio('Onde')}`;
     form.elements._next.value = new URL('agendar.html?enviado=1', location.href).href;
-    const arqs = await Promise.all(fotos.map(f => comprimir(f.file)));
-    const caixa = $('[data-anexos]'); caixa.innerHTML = '';
-    let semDT = false;
-    arqs.forEach((a, i) => {
-      const inp = document.createElement('input'); inp.type = 'file'; inp.name = 'Referência ' + (i + 1); caixa.appendChild(inp);
-      try { const dt = new DataTransfer(); dt.items.add(a); inp.files = dt.files; } catch (er) { semDT = true; inp.remove(); }
-    });
-    if (semDT && arqs.length) $('#obs').value += '\n\n(As imagens não anexaram por este navegador; mando na DM.)';
     /* campos auxiliares não vão no e-mail */
-    $$('[data-grupo] input[type="checkbox"], #local-obs, #arquivos').forEach(el => { el.disabled = true; });
+    $$('[data-grupo] input[type="checkbox"], #local-obs').forEach(el => { el.disabled = true; });
     form.elements['Instagram'].value = insta();
     try { localStorage.removeItem(CHAVE); } catch (er) { /* */ }
     HTMLFormElement.prototype.submit.call(form);
